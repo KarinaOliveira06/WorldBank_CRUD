@@ -1,0 +1,6 @@
+@WorldBank_CRUD_HostAddress = http://localhost:5263
+
+GET {{WorldBank_CRUD_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
