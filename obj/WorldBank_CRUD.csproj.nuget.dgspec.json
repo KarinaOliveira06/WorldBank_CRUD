@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD\\WorldBank_CRUD.csproj": {}
+    "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD\\WorldBank_CRUD.csproj": {
+    "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
+        "projectUniqueName": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
         "projectName": "WorldBank_CRUD",
-        "projectPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
+        "projectPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
         "packagesPath": "C:\\Users\\Karina\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD\\obj\\",
+        "outputPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -51,16 +51,6 @@
           "targetAlias": "net10.0",
           "dependencies": {
             "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[10.0.7, )"
-            },
-            "Microsoft.EntityFrameworkCore.Sqlite": {
-              "target": "Package",
-              "version": "[10.0.7, )"
-            },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
               "target": "Package",
               "version": "[10.0.7, )"
             }
