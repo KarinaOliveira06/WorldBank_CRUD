@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WorldBank_CRUD")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2dc26470079801b1bf86eb61f514c2baf4d97dcf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+af87fbed89f2b1850bcafb891b7d918e71a8a684")]
 [assembly: System.Reflection.AssemblyProductAttribute("WorldBank_CRUD")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WorldBank_CRUD")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

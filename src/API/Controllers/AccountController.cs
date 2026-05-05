@@ -25,11 +25,20 @@ namespace WorldBank_CRUD.API.Controllers
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            return Ok(account);
+            var accountDTO = new AccountResponseDTO
+            {
+                Id = account.Id,
+                Name = account.Name,
+                AccountNumber = account.AccountNumber,
+                Balance = account.Balance,
+                SavingsBalance = account.SavingsBalance
+            };
+
+            return Ok(accountDTO);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        public async Task<ActionResult<IEnumerable<AccountResponseDTO>>> GetAccounts()
         {
             var accounts = await _context.Accounts.ToListAsync();
 
@@ -75,6 +84,33 @@ namespace WorldBank_CRUD.API.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("Transfer")]
+
+        public async Task<IActionResult> Transfer(TransferDTO transferDto)
+        {
+            if (transferDto.Amount <= 0)
+                return BadRequest("The transfer amount must be greater than 0.");
+
+            if (transferDto.SenderId == transferDto.ReceiverId)
+                return BadRequest("The transfer must be between different accounts");
+
+            var sender = await _context.Accounts.FindAsync(transferDto.SenderId);
+            var receiver = await _context.Accounts.FindAsync(transferDto.ReceiverId);
+
+            if (sender == null || receiver == null)
+                return NotFound("User not found.");
+
+            if (sender.Balance < transferDto.Amount)
+                return BadRequest("Transfer denied: insufficient funds.");
+
+            sender.Balance -= transferDto.Amount;
+            receiver.Balance += transferDto.Amount;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Successful transfer!");
         }
     }
 }
