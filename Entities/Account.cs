@@ -1,6 +1,6 @@
-namespace WorldBank_CRUD
+namespace WorldBank_CRUD.Entities
 {
-    class Account
+    public class Account
     {
         public int Id {get; set;}
         public string Name {get; set;} = string.Empty;
