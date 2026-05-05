@@ -1,4 +1,4 @@
-namespace WorldBank_CRUD.Entities
+namespace WorldBank_CRUD.Domain.Entities
 {
     public class Account
     {

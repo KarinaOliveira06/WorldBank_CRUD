@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using WorldBank_CRUD.Entities;
+using WorldBank_CRUD.Domain.Entities;
 
-namespace WorldBank_CRUD.Data
+namespace WorldBank_CRUD.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {

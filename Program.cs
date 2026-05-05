@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WorldBank_CRUD.Data;
+using WorldBank_CRUD.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

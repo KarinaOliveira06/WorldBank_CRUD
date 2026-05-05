@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WorldBank_CRUD.Data;
+using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
