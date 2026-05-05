@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WorldBank_CRUD.Data;
+using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
-namespace WorldBank_CRUD.Migrations
+namespace WorldBank_CRUD.src.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260505130335_CreatingTableAccounts")]
-    partial class CreatingTableAccounts
+    [Migration("20260505173159_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -19,7 +19,7 @@ namespace WorldBank_CRUD.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
 
-            modelBuilder.Entity("WorldBank_CRUD.Entities.Account", b =>
+            modelBuilder.Entity("WorldBank_CRUD.Domain.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

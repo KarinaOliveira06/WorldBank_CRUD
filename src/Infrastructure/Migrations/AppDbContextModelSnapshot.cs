@@ -6,7 +6,7 @@ using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
-namespace WorldBank_CRUD.Migrations
+namespace WorldBank_CRUD.src.WorldBank.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -16,7 +16,7 @@ namespace WorldBank_CRUD.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
 
-            modelBuilder.Entity("WorldBank_CRUD.Entities.Account", b =>
+            modelBuilder.Entity("WorldBank_CRUD.Domain.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
