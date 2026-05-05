@@ -6,7 +6,7 @@ using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
-namespace WorldBank_CRUD.src.WorldBank.Infrastructure.Migrations
+namespace WorldBank_CRUD.src.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot

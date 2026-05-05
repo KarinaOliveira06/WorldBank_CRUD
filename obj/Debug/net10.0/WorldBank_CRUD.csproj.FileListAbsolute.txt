@@ -1,3 +1,5 @@
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\appsettings.Development.json
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\appsettings.json
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\WorldBank_CRUD.staticwebassets.endpoints.json
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\WorldBank_CRUD.exe
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\WorldBank_CRUD.deps.json
@@ -27,6 +29,9 @@ C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Newtonsoft.Json.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\SQLitePCLRaw.batteries_v2.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\SQLitePCLRaw.core.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\SQLitePCLRaw.provider.e_sqlite3.dll
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\System.CodeDom.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\System.Composition.AttributedModel.dll
 C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\System.Composition.Convention.dll
@@ -145,8 +150,4 @@ C:\Users\Karina\Documents\WorldBank_CRUD\obj\Debug\net10.0\refint\WorldBank_CRUD
 C:\Users\Karina\Documents\WorldBank_CRUD\obj\Debug\net10.0\WorldBank_CRUD.pdb
 C:\Users\Karina\Documents\WorldBank_CRUD\obj\Debug\net10.0\WorldBank_CRUD.genruntimeconfig.cache
 C:\Users\Karina\Documents\WorldBank_CRUD\obj\Debug\net10.0\ref\WorldBank_CRUD.dll
-C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\src\API\appsettings.Development.json
-C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\src\API\appsettings.json
-C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\Karina\Documents\WorldBank_CRUD\bin\Debug\net10.0\BCrypt.Net-Next.dll

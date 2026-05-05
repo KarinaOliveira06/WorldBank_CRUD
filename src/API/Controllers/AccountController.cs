@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorldBank_CRUD.Domain.Entities;
 using WorldBank_CRUD.Infrastructure.Data;
+using WorldBank_CRUD.API.DTOs;
 
 namespace WorldBank_CRUD.API.Controllers
 {
@@ -19,15 +20,29 @@ namespace WorldBank_CRUD.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Account>> CreateAccount(Account account)
         {
+            account.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
+
             return Ok(account);
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-            return await _context.Accounts.ToListAsync();
+            var accounts = await _context.Accounts.ToListAsync();
+
+            var accountsDTO = accounts.Select(a => new AccountResponseDTO
+            {
+                Id = a.Id,
+                Name = a.Name,
+                AccountNumber = a.AccountNumber,
+                Balance = a.Balance,
+                SavingsBalance = a.SavingsBalance
+            }).ToList();
+
+            return Ok(accountsDTO);
         }
 
         [HttpPut("{id}")]

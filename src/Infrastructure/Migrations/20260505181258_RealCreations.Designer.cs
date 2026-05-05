@@ -10,8 +10,8 @@ using WorldBank_CRUD.Infrastructure.Data;
 namespace WorldBank_CRUD.src.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260505173159_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260505181258_RealCreations")]
+    partial class RealCreations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
