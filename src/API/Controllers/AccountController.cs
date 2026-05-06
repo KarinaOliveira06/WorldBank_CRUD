@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WorldBank_CRUD.Domain.Entities;
 using WorldBank_CRUD.Infrastructure.Data;
 using WorldBank_CRUD.API.DTOs;
+using System.Transactions;
 
 namespace WorldBank_CRUD.API.Controllers
 {
@@ -106,6 +107,44 @@ namespace WorldBank_CRUD.API.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Successful transfer!");
+        }
+
+        [HttpPost("{id}/deposit")]
+        public async Task<IActionResult> Deposit(int id, TransactionDTO transactionDto)
+        {
+            if (transactionDto.Amount <= 0)
+                return BadRequest("The deposit amount must be greater than 0.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
+                return NotFound("Account not found.");
+
+            account.Balance += transactionDto.Amount;
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Deposit successful. New balance: {account.Balance}");
+        }
+
+        [HttpPost("{id}/withdraw")]
+        public async Task<IActionResult> Withdraw(int id, TransactionDTO transactionDto)
+        {
+
+            if (transactionDto.Amount <= 0)
+                return BadRequest("The withdrawal amount must be greater than 0.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
+                return NotFound("Account not found.");
+
+            if (account.Balance < transactionDto.Amount)
+                return BadRequest("Withdrawal denied: insufficient funds.");
+
+            account.Balance -= transactionDto.Amount;
+
+            await _context.SaveChangesAsync();
+
+            return Ok($"Withdrawal successful. New balance: {account.Balance}");
         }
     }
 }
