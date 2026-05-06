@@ -9,5 +9,8 @@ namespace WorldBank_CRUD.Infrastructure.Data
         {
         }
         public DbSet<Account> Accounts {get; set;}
+        public DbSet<Transaction> Transactions { get; set; }
     }
+    
+    
 }

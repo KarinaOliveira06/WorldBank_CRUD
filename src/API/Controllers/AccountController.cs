@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using WorldBank_CRUD.Domain.Entities;
 using WorldBank_CRUD.Infrastructure.Data;
 using WorldBank_CRUD.API.DTOs;
-using System.Transactions;
 
 namespace WorldBank_CRUD.API.Controllers
 {
@@ -104,6 +103,25 @@ namespace WorldBank_CRUD.API.Controllers
             sender.Balance -= transferDto.Amount;
             receiver.Balance += transferDto.Amount;
 
+            var senderTransaction = new Transaction
+            {
+                Type = "TransferOut",
+                Amount = transferDto.Amount,
+                Description = $"Transfer sent to account ID {receiver.Id}",
+                AccountId = sender.Id
+            };
+
+            var receiverTransaction = new Transaction
+            {
+                Type = "TransferIn",
+                Amount = transferDto.Amount,
+                Description = $"Transfer received from account ID {sender.Id}",
+                AccountId = receiver.Id
+            };
+
+            _context.Transactions.Add(senderTransaction);
+            _context.Transactions.Add(receiverTransaction);
+
             await _context.SaveChangesAsync();
 
             return Ok("Successful transfer!");
@@ -120,6 +138,16 @@ namespace WorldBank_CRUD.API.Controllers
                 return NotFound("Account not found.");
 
             account.Balance += transactionDto.Amount;
+
+            var transactionHistory = new Transaction
+            {
+                Type = "Deposit",
+                Amount = transactionDto.Amount,
+                Description = "Deposit realized via API",
+                AccountId = account.Id
+            };
+
+            _context.Transactions.Add(transactionHistory);
 
             await _context.SaveChangesAsync();
 
@@ -141,6 +169,16 @@ namespace WorldBank_CRUD.API.Controllers
                 return BadRequest("Withdrawal denied: insufficient funds.");
 
             account.Balance -= transactionDto.Amount;
+
+            var transactionHistory = new Transaction
+            {
+                Type = "Withdrawal",
+                Amount = transactionDto.Amount,
+                Description = "Withdrawal realized via API",
+                AccountId = account.Id
+            };
+
+            _context.Transactions.Add(transactionHistory);
 
             await _context.SaveChangesAsync();
 
