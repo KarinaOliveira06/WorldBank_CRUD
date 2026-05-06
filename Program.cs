@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WorldBank_CRUD.Infrastructure.Data; // Nome grande como combinamos
+using WorldBank_CRUD.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

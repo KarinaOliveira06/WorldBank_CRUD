@@ -55,23 +55,18 @@ namespace WorldBank_CRUD.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAccount(int id, Account account)
+        public async Task<IActionResult> UpdateAccount(int id, AccountUpdateDTO updateDto)
         {
-            if (id != account.Id) return BadRequest("Incompatible ID");
+            var account = await _context.Accounts.FindAsync(id);
 
-            _context.Entry(account).State = EntityState.Modified;
+            if (account == null)
+                return NotFound("Account not found.");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Accounts.Any(e => e.Id == id)) return NotFound();
-                throw;
-            }
+            account.Name = updateDto.Name;
 
-            return NoContent();
+            await _context.SaveChangesAsync();
+
+            return Ok("Update Account successfully.");
         }
 
         [HttpDelete("{id}")]
