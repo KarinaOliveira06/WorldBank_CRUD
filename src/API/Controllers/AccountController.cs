@@ -17,7 +17,8 @@ namespace WorldBank_CRUD.API.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        // ROTA RESTAURADA PARA REGISTER
+        [HttpPost("register")]
         public async Task<ActionResult<Account>> CreateAccount(Account account)
         {
             account.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
@@ -35,6 +36,27 @@ namespace WorldBank_CRUD.API.Controllers
             };
 
             return Ok(accountDTO);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDTO loginDto)
+        {
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(a => a.AccountNumber == loginDto.AccountNumber && a.Name == loginDto.Name);
+
+            if (account == null)
+                return Unauthorized("Invalid credentials.");
+
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, account.Password);
+
+            if (!isPasswordValid)
+                return Unauthorized("Invalid credentials.");
+
+            return Ok(new
+            {
+                user = account.Name,
+                message = "Successfully Logged-in!"
+            });
         }
 
         [HttpGet]
@@ -82,7 +104,6 @@ namespace WorldBank_CRUD.API.Controllers
         }
 
         [HttpPost("Transfer")]
-
         public async Task<IActionResult> Transfer(TransferDTO transferDto)
         {
             if (transferDto.Amount <= 0)
@@ -157,7 +178,6 @@ namespace WorldBank_CRUD.API.Controllers
         [HttpPost("{id}/withdraw")]
         public async Task<IActionResult> Withdraw(int id, TransactionDTO transactionDto)
         {
-
             if (transactionDto.Amount <= 0)
                 return BadRequest("The withdrawal amount must be greater than 0.");
 

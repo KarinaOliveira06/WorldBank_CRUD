@@ -8,11 +8,11 @@ using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
-namespace WorldBank_CRUD.src.Infrastructure.Migrations
+namespace WorldBank_CRUD.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260506183557_AddTransactionDescription")]
-    partial class AddTransactionDescription
+    [Migration("20260507192250_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,7 +75,7 @@ namespace WorldBank_CRUD.src.Infrastructure.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("WorldBank_CRUD.Domain.Entities.Transaction", b =>

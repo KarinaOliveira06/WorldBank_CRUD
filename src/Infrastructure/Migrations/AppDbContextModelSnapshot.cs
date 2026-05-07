@@ -7,7 +7,7 @@ using WorldBank_CRUD.Infrastructure.Data;
 
 #nullable disable
 
-namespace WorldBank_CRUD.src.Infrastructure.Migrations
+namespace WorldBank_CRUD.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -72,7 +72,7 @@ namespace WorldBank_CRUD.src.Infrastructure.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("WorldBank_CRUD.Domain.Entities.Transaction", b =>
