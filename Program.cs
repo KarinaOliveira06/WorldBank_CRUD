@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WorldBank_CRUD.Infrastructure.Data;
+using WorldBank_CRUD.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,14 +14,36 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddInfrastructure();
+
+var tokenKey = builder.Configuration["TokenKey"];
+
+if (string.IsNullOrEmpty(tokenKey) || tokenKey.Length < 64)
+{
+    throw new Exception("FATAL ERROR");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            ValidateIssuer = false, 
+            ValidateAudience = false 
+        };
+    });
 
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseMiddleware<WorldBank_CRUD.API.Middlewares.ExceptionMiddleware>();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

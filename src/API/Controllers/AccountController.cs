@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using WorldBank_CRUD.Domain.Entities;
 using WorldBank_CRUD.Infrastructure.Data;
 using WorldBank_CRUD.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WorldBank_CRUD.API.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -17,7 +19,7 @@ namespace WorldBank_CRUD.API.Controllers
             _context = context;
         }
 
-        // ROTA RESTAURADA PARA REGISTER
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<Account>> CreateAccount(Account account)
         {
@@ -38,6 +40,8 @@ namespace WorldBank_CRUD.API.Controllers
             return Ok(accountDTO);
         }
 
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO loginDto)
         {
