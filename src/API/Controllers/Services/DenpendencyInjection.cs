@@ -8,6 +8,7 @@ namespace WorldBank_CRUD.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<TokenService>();
+            services.AddScoped<RabbitMqService>();
 
             return services;
         }

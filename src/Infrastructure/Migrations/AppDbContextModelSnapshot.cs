@@ -37,6 +37,10 @@ namespace WorldBank_CRUD.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("SavingsBalance")
                         .HasColumnType("TEXT");
 

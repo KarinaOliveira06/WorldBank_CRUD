@@ -4,6 +4,7 @@ using WorldBank_CRUD.Domain.Entities;
 using WorldBank_CRUD.Infrastructure.Data;
 using WorldBank_CRUD.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using WorldBank_CRUD.API.Services;
 
 namespace WorldBank_CRUD.API.Controllers
 {
@@ -13,10 +14,12 @@ namespace WorldBank_CRUD.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly RabbitMqService _rabbitMqService;
 
-        public AccountController(AppDbContext context)
+        public AccountController(AppDbContext context, RabbitMqService rabbitMqService)
         {
             _context = context;
+            _rabbitMqService = rabbitMqService;
         }
 
         [AllowAnonymous]
@@ -150,6 +153,17 @@ namespace WorldBank_CRUD.API.Controllers
             sender.Balance -= transferDto.Amount;
             receiver.Balance += transferDto.Amount;
 
+            var receiverMsg = new
+            {
+                AccountId = receiver.Id,
+                Type = "Transfer_In",
+                Amount = transferDto.Amount,
+                Date = DateTime.UtcNow,
+                Message = $"You received $ {transferDto.Amount} from {sender.Name}."
+            };
+
+            await _rabbitMqService.PublishMessageAsync(receiverMsg, "transaction_notifications");
+
             var senderTransaction = new Transaction
             {
                 Type = "TransferOut",
@@ -227,6 +241,16 @@ namespace WorldBank_CRUD.API.Controllers
                 return BadRequest("Withdrawal denied: insufficient funds.");
 
             account.Balance -= transactionDto.Amount;
+
+            var withdrawMsg = new
+            {
+                AccountId = account.Id,
+                Type = "Withdraw",
+                Amount = transactionDto.Amount,
+                Date = DateTime.UtcNow,
+                Message = $"Successfull $ {transactionDto.Amount} withdrawal."
+            };
+            await _rabbitMqService.PublishMessageAsync(withdrawMsg, "transaction_notifications");
 
             var transactionHistory = new Transaction
             {
