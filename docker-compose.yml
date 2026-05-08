@@ -1,0 +1,24 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  api:
+    build: .
+    ports:
+      - "5000:80"
+    environment:
+      - TokenKey=${JWT_TOKEN_KEY}
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+
+  worker:
+    build: ./src/Workers
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
