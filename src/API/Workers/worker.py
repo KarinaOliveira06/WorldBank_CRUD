@@ -37,7 +37,7 @@ def generate_concierge_message(transaction_type, original_message):
 
 def main():
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
 
     queue_name = 'transaction_notifications'

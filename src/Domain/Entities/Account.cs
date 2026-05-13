@@ -9,7 +9,7 @@ namespace WorldBank_CRUD.Domain.Entities
         public decimal Balance {get; set;}
         public decimal SavingsBalance {get; set;}
 
-        public string Role { get; set; } = "Customer";
+        public string Role { get; set; } = "User";
 
         public List<Transaction> Transactions { get; set; } = new List<Transaction>();
     }

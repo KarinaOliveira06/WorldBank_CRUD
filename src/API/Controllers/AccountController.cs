@@ -26,7 +26,19 @@ namespace WorldBank_CRUD.API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<Account>> CreateAccount(Account account)
         {
+            var accountExists = await _context.Accounts.AnyAsync(a => a.AccountNumber == account.AccountNumber);
+
+            if (accountExists)
+            {
+                return BadRequest(new { Message = "AccountNumber already in use." });
+            }
+
             account.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
+
+            if (string.IsNullOrEmpty(account.Role))
+            {
+                account.Role = "User";
+            }
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
