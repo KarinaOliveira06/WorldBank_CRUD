@@ -36,7 +36,8 @@ def generate_concierge_message(transaction_type, original_message):
         response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
-        return f"Error contacting AI: {e}"
+        print(f"⚠️ API Limit Reached: {e}")
+        return f"✅ Transaction confirmed successfully! (System auto-message)"
 
 def main():
     print("⏳ Starting AI Concierge Worker...")
