@@ -15,11 +15,13 @@ namespace WorldBank_CRUD.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly RabbitMqService _rabbitMqService;
+        private readonly TokenService _tokenService;
 
-        public AccountController(AppDbContext context, RabbitMqService rabbitMqService)
+        public AccountController(AppDbContext context, RabbitMqService rabbitMqService, TokenService tokenService)
         {
             _context = context;
             _rabbitMqService = rabbitMqService;
+            _tokenService = tokenService;
         }
 
         [AllowAnonymous]
@@ -55,7 +57,6 @@ namespace WorldBank_CRUD.API.Controllers
             return Ok(accountDTO);
         }
 
-
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO loginDto)
@@ -71,13 +72,17 @@ namespace WorldBank_CRUD.API.Controllers
             if (!isPasswordValid)
                 return Unauthorized("Invalid credentials.");
 
+            var token = _tokenService.CreateToken(account);
+
             return Ok(new
             {
                 user = account.Name,
+                token = token,
                 message = "Successfully Logged-in!"
             });
         }
 
+        [Authorize (Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AccountResponseDTO>>> GetAccounts()
         {
@@ -98,18 +103,11 @@ namespace WorldBank_CRUD.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAccount(int id, AccountUpdateDTO updateDto)
         {
-            var nameIdFromToken = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.NameId)?.Value;
-            bool isAdmin = User.IsInRole("Admin");
+
+            if (!HasPermission(id)) return StatusCode(403, "You cannot update this account.");
 
             var account = await _context.Accounts.FindAsync(id);
-
-            if (!isAdmin && account?.AccountNumber.ToString() != nameIdFromToken)
-            {
-                return Forbid("You cannot update this account.");
-            }
-
-            if (account == null)
-                return NotFound("Account not found.");
+            if (account == null) return NotFound("Account not found.");
 
             account.Name = updateDto.Name;
 
@@ -121,16 +119,11 @@ namespace WorldBank_CRUD.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(int id)
         {
-            var nameIdFromToken = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.NameId)?.Value;
-            bool isAdmin = User.IsInRole("Admin");
+
+            if (!HasPermission(id)) return StatusCode(403, "You cannot delete this account.");
 
             var account = await _context.Accounts.FindAsync(id);
             if (account == null) return NotFound();
-
-            if (!isAdmin && account.AccountNumber.ToString() != nameIdFromToken)
-            {
-                return Forbid("You cannot delete this account.");
-            }
 
             _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
@@ -147,7 +140,9 @@ namespace WorldBank_CRUD.API.Controllers
             if (transferDto.SenderId == transferDto.ReceiverId)
                 return BadRequest("The transfer must be between different accounts");
 
-            var nameIdFromToken = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.NameId)?.Value;
+            if (!HasPermission(transferDto.SenderId))
+                return StatusCode(403, "Fraud detected: You can't transfer from another account.");
+
             var sender = await _context.Accounts.FindAsync(transferDto.SenderId);
             var receiver = await _context.Accounts.FindAsync(transferDto.ReceiverId);
 
@@ -156,11 +151,6 @@ namespace WorldBank_CRUD.API.Controllers
 
             if (sender.Balance < transferDto.Amount)
                 return BadRequest("Transfer denied: insufficient funds.");
-
-            if (sender.AccountNumber.ToString() != nameIdFromToken)
-            {
-                return Forbid("Fraud detected: You can't transfer from another account.");
-            }
 
             sender.Balance -= transferDto.Amount;
             receiver.Balance += transferDto.Amount;
@@ -206,15 +196,10 @@ namespace WorldBank_CRUD.API.Controllers
             if (transactionDto.Amount <= 0)
                 return BadRequest("The deposit amount must be greater than 0.");
 
-            var nameIdFromToken = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.NameId)?.Value;
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-                return NotFound("Account not found.");
+            if (!HasPermission(id)) return StatusCode(403, "Operation denied. You can't deposit to this account.");
 
-            if (account.AccountNumber.ToString() != nameIdFromToken)
-            {
-                return Forbid("Operation denied.");
-            }
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound("Account not found.");
 
             account.Balance += transactionDto.Amount;
 
@@ -239,15 +224,10 @@ namespace WorldBank_CRUD.API.Controllers
             if (transactionDto.Amount <= 0)
                 return BadRequest("The withdrawal amount must be greater than 0.");
 
-            var nameIdFromToken = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.NameId)?.Value;
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-                return NotFound("Account not found.");
+            if (!HasPermission(id)) return StatusCode(403, "Operation denied. You can't withdraw from this account.");
 
-            if (account.AccountNumber.ToString() != nameIdFromToken)
-            {
-                return Forbid("Operation denied.");
-            }
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound("Account not found.");
 
             if (account.Balance < transactionDto.Amount)
                 return BadRequest("Withdrawal denied: insufficient funds.");
@@ -300,6 +280,36 @@ namespace WorldBank_CRUD.API.Controllers
                 message = $"{account.Name} is now Admin.",
                 role = account.Role
             });
+        }
+
+        private bool HasPermission(int targetAccountId)
+        {
+            var loggedInUserId = User.FindFirst("AccountId")?.Value;
+
+            if (User.IsInRole("Admin")) return true;
+
+            return loggedInUserId == targetAccountId.ToString();
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAccountById(int id)
+        {
+            if (!HasPermission(id)) return StatusCode(403, "You cannot view this account.");
+
+            var account = await _context.Accounts.FindAsync(id);
+
+            if (account == null)
+                return NotFound("Account not found.");
+
+            var accountDTO = new AccountResponseDTO
+            {
+                Id = account.Id,
+                Name = account.Name,
+                AccountNumber = account.AccountNumber,
+                Balance = account.Balance,
+                SavingsBalance = account.SavingsBalance
+            };
+
+            return Ok(accountDTO);
         }
     }
 }
