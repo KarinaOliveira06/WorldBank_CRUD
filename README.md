@@ -46,3 +46,19 @@ The entire ecosystem—PostgreSQL, RabbitMQ, the .NET API, and Python Workers—
 | **Messaging** | RabbitMQ |
 | **Infrastructure** | Docker |
 | **Testing** | Insomnia |
+
+## 🛠️ Getting Started (How to Run Locally)
+
+### 1. Prerequisites
+- **Docker & Docker Compose** installed and running on your machine.
+- A free **Google Gemini API Key** (you can get one [here](https://aistudio.google.com/app/apikey)).
+
+### 2. Environment Setup
+Create a file named `.env` in the root directory (same level as the `docker-compose.yml` file) and configure your keys:
+
+```env
+# C# Backend Security
+JWT_TOKEN_KEY=YourSuperSecretAndLongKeyForJWT12345!
+
+# Python AI Worker
+GEMINI_API_KEY=your_google_gemini_api_key_here
