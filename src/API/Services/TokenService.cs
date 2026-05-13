@@ -19,9 +19,10 @@ namespace WorldBank_CRUD.API.Services
         {
             var claims = new List<Claim>
             {
-            new Claim(JwtRegisteredClaimNames.NameId, account.AccountNumber.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, account.Name),
-            new Claim(ClaimTypes.Role, account.Role)
+                new Claim(JwtRegisteredClaimNames.NameId, account.AccountNumber.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, account.Name),                
+                new Claim("AccountId", account.Id.ToString()),                               
+                new Claim(ClaimTypes.Role, account.Role ?? "User")                           
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
