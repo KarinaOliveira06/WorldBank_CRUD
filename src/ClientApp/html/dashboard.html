@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Bank - Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--astro-blue); padding-bottom: 1rem; margin-bottom: 2rem;">
+            <h2>Welcome, <span id="userNameDisplay" style="color: var(--astro-orange);">User</span></h2>
+            <button id="logoutBtn" style="background: transparent; border: 1px solid #ff4757; color: #ff4757; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Logout</button>
+        </div>
+
+        <div style="background-color: #0F172A; padding: 2rem; border-radius: 10px; text-align: center; margin-bottom: 2rem; border-top: 4px solid var(--astro-blue);">
+            <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Account ID Number</p>
+            <h3 id="userIdDisplay" style="color: white; margin-bottom: 1rem; font-size: 1.5rem;">---</h3>
+            
+            <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Total Checking Balance</p>
+            <h2 id="balanceDisplay" style="color: #2ecc71; font-size: 2.5rem;">$ 0.00</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 2rem;">
+            <div style="background: #1E293B; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="margin-bottom: 1rem; color: var(--astro-blue);">Deposit</h3>
+                <form id="depositForm">
+                    <div class="form-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="depAmount" required placeholder="0.00" step="0.01">
+                    </div>
+                    <button type="submit" class="astro-btn">Add Funds</button>
+                </form>
+            </div>
+
+            <div style="background: #1E293B; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="margin-bottom: 1rem; color: var(--astro-orange);">Transfer</h3>
+                <form id="transferForm">
+                    <div class="form-group">
+                        <label>Recipient ID</label>
+                        <input type="number" id="receiverId" required placeholder="Target ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount ($)</label>
+                        <input type="number" id="transAmount" required placeholder="0.00" step="0.01">
+                    </div>
+                    <button type="submit" class="astro-btn" style="background: var(--astro-orange);">Send Money</button>
+                </form>
+            </div>
+        </div>
+
+        <div style="background-color: #0F172A; padding: 2rem; border-radius: 10px; border-top: 4px solid #94A3B8;">
+            <h3 style="color: var(--text-main); margin-bottom: 15px;">Recent Activity <span style="color: var(--astro-blue); font-size: 0.8rem;">(AI Concierge)</span></h3>
+            
+            <div id="transactionList" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto;">
+                <p style="color: var(--text-muted);">No recent activity...</p>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="error-message" style="margin-top: 1.5rem; text-align: center;"></div>
+    </div>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

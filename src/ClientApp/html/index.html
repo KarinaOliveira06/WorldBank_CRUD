@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Bank - Access Terminal</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>World<span>Bank</span></h1>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button id="showLogin" class="astro-btn" style="background: var(--bg-space); font-size: 0.8rem;">Login</button>
+            <button id="showRegister" class="astro-btn" style="background: var(--bg-space); font-size: 0.8rem;">Register</button>
+        </div>
+
+        <div id="loginSection">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="number" id="loginAccount" required placeholder="e.g. 111">
+                </div>
+                <div class="form-group">
+                    <label>Account Name</label>
+                    <input type="text" id="loginName" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="astro-btn">Login to Account</button>
+            </form>
+        </div>
+
+        <div id="registerSection" style="display: none;">
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" required placeholder="e.g. John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="number" id="regAccount" required placeholder="e.g. 111">
+                </div>
+                <div class="form-group">
+                    <label>Security Password</label>
+                    <input type="password" id="regPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="astro-btn" style="background-color: var(--astro-orange);">Create Account</button>
+            </form>
+        </div>
+
+        <div id="message" class="error-message"></div>
+    </div>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

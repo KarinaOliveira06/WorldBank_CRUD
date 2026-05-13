@@ -3274,11 +3274,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
+      "projectUniqueName": "c:\\Users\\Karina\\Downloads\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
       "projectName": "WorldBank_CRUD",
-      "projectPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
+      "projectPath": "c:\\Users\\Karina\\Downloads\\WorldBank_CRUD\\WorldBank_CRUD.csproj",
       "packagesPath": "C:\\Users\\Karina\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Karina\\Documents\\WorldBank_CRUD\\obj\\",
+      "outputPath": "c:\\Users\\Karina\\Downloads\\WorldBank_CRUD\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3367,7 +3367,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

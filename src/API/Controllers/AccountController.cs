@@ -5,7 +5,7 @@ using WorldBank_CRUD.Infrastructure.Data;
 using WorldBank_CRUD.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using WorldBank_CRUD.API.Services;
-//Hello
+
 namespace WorldBank_CRUD.API.Controllers
 {
     [Authorize]
@@ -32,7 +32,7 @@ namespace WorldBank_CRUD.API.Controllers
 
             if (accountExists)
             {
-                return BadRequest(new { Message = "AccountNumber already in use." });
+                return BadRequest(new { Message = "Account number already in use." });
             }
 
             account.Password = BCrypt.Net.BCrypt.HashPassword(account.Password);
@@ -78,11 +78,11 @@ namespace WorldBank_CRUD.API.Controllers
             {
                 user = account.Name,
                 token = token,
-                message = "Successfully Logged-in!"
+                message = "Successfully logged in!"
             });
         }
 
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AccountResponseDTO>>> GetAccounts()
         {
@@ -100,200 +100,10 @@ namespace WorldBank_CRUD.API.Controllers
             return Ok(accountsDTO);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAccount(int id, AccountUpdateDTO updateDto)
-        {
-
-            if (!HasPermission(id)) return StatusCode(403, "You cannot update this account.");
-
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null) return NotFound("Account not found.");
-
-            account.Name = updateDto.Name;
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Update Account successfully.");
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccount(int id)
-        {
-
-            if (!HasPermission(id)) return StatusCode(403, "You cannot delete this account.");
-
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null) return NotFound();
-
-            _context.Accounts.Remove(account);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpPost("Transfer")]
-        public async Task<IActionResult> Transfer(TransferDTO transferDto)
-        {
-            if (transferDto.Amount <= 0)
-                return BadRequest("The transfer amount must be greater than 0.");
-
-            if (transferDto.SenderId == transferDto.ReceiverId)
-                return BadRequest("The transfer must be between different accounts");
-
-            if (!HasPermission(transferDto.SenderId))
-                return StatusCode(403, "Fraud detected: You can't transfer from another account.");
-
-            var sender = await _context.Accounts.FindAsync(transferDto.SenderId);
-            var receiver = await _context.Accounts.FindAsync(transferDto.ReceiverId);
-
-            if (sender == null || receiver == null)
-                return NotFound("User not found.");
-
-            if (sender.Balance < transferDto.Amount)
-                return BadRequest("Transfer denied: insufficient funds.");
-
-            sender.Balance -= transferDto.Amount;
-            receiver.Balance += transferDto.Amount;
-
-            var receiverMsg = new
-            {
-                AccountId = receiver.Id,
-                Type = "Transfer_In",
-                Amount = transferDto.Amount,
-                Date = DateTime.UtcNow,
-                Message = $"You received $ {transferDto.Amount} from {sender.Name}."
-            };
-
-            await _rabbitMqService.PublishMessageAsync(receiverMsg, "transaction_notifications");
-
-            var senderTransaction = new Transaction
-            {
-                Type = "TransferOut",
-                Amount = transferDto.Amount,
-                Description = $"Transfer sent to account ID {receiver.Id}",
-                AccountId = sender.Id
-            };
-
-            var receiverTransaction = new Transaction
-            {
-                Type = "TransferIn",
-                Amount = transferDto.Amount,
-                Description = $"Transfer received from account ID {sender.Id}",
-                AccountId = receiver.Id
-            };
-
-            _context.Transactions.Add(senderTransaction);
-            _context.Transactions.Add(receiverTransaction);
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Successful transfer!");
-        }
-
-        [HttpPost("{id}/deposit")]
-        public async Task<IActionResult> Deposit(int id, TransactionDTO transactionDto)
-        {
-            if (transactionDto.Amount <= 0)
-                return BadRequest("The deposit amount must be greater than 0.");
-
-            if (!HasPermission(id)) return StatusCode(403, "Operation denied. You can't deposit to this account.");
-
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null) return NotFound("Account not found.");
-
-            account.Balance += transactionDto.Amount;
-
-            var transactionHistory = new Transaction
-            {
-                Type = "Deposit",
-                Amount = transactionDto.Amount,
-                Description = "Deposit realized via API",
-                AccountId = account.Id
-            };
-
-            _context.Transactions.Add(transactionHistory);
-
-            await _context.SaveChangesAsync();
-
-            return Ok($"Deposit successful. New balance: {account.Balance}");
-        }
-
-        [HttpPost("{id}/withdraw")]
-        public async Task<IActionResult> Withdraw(int id, TransactionDTO transactionDto)
-        {
-            if (transactionDto.Amount <= 0)
-                return BadRequest("The withdrawal amount must be greater than 0.");
-
-            if (!HasPermission(id)) return StatusCode(403, "Operation denied. You can't withdraw from this account.");
-
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null) return NotFound("Account not found.");
-
-            if (account.Balance < transactionDto.Amount)
-                return BadRequest("Withdrawal denied: insufficient funds.");
-
-            account.Balance -= transactionDto.Amount;
-
-            var withdrawMsg = new
-            {
-                AccountId = account.Id,
-                Type = "Withdraw",
-                Amount = transactionDto.Amount,
-                Date = DateTime.UtcNow,
-                Message = $"Successfull $ {transactionDto.Amount} withdrawal."
-            };
-            await _rabbitMqService.PublishMessageAsync(withdrawMsg, "transaction_notifications");
-
-            var transactionHistory = new Transaction
-            {
-                Type = "Withdrawal",
-                Amount = transactionDto.Amount,
-                Description = "Withdrawal realized via API",
-                AccountId = account.Id
-            };
-
-            _context.Transactions.Add(transactionHistory);
-
-            await _context.SaveChangesAsync();
-
-            return Ok($"Withdrawal successful. New balance: {account.Balance}");
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("{id}/promote")]
-        public async Task<IActionResult> PromoteToAdmin(int id)
-        {
-            var account = await _context.Accounts.FindAsync(id);
-
-            if (account == null)
-                return NotFound("User not found.");
-
-            if (account.Role == "Admin")
-                return BadRequest("This user already is an Admin.");
-
-            account.Role = "Admin";
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                message = $"{account.Name} is now Admin.",
-                role = account.Role
-            });
-        }
-
-        private bool HasPermission(int targetAccountId)
-        {
-            var loggedInUserId = User.FindFirst("AccountId")?.Value;
-
-            if (User.IsInRole("Admin")) return true;
-
-            return loggedInUserId == targetAccountId.ToString();
-        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAccountById(int id)
         {
-            if (!HasPermission(id)) return StatusCode(403, "You cannot view this account.");
+            if (!HasPermission(id)) return StatusCode(403, "Access denied.");
 
             var account = await _context.Accounts.FindAsync(id);
 
@@ -310,6 +120,260 @@ namespace WorldBank_CRUD.API.Controllers
             };
 
             return Ok(accountDTO);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAccount(int id, AccountUpdateDTO updateDto)
+        {
+            if (!HasPermission(id)) return StatusCode(403, "Access denied.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound("Account not found.");
+
+            account.Name = updateDto.Name;
+            await _context.SaveChangesAsync();
+
+            return Ok("Account updated successfully.");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAccount(int id)
+        {
+            if (!HasPermission(id)) return StatusCode(403, "Access denied.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound();
+
+            _context.Accounts.Remove(account);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("transfer")]
+        public async Task<IActionResult> Transfer(TransferDTO transferDto)
+        {
+            if (transferDto.Amount <= 0)
+                return BadRequest("Amount must be greater than zero.");
+
+            if (transferDto.SenderId == transferDto.ReceiverId)
+                return BadRequest("Sender and receiver must be different.");
+
+            if (!HasPermission(transferDto.SenderId))
+                return StatusCode(403, "Permission denied.");
+
+            var sender = await _context.Accounts.FindAsync(transferDto.SenderId);
+            var receiver = await _context.Accounts.FindAsync(transferDto.ReceiverId);
+
+            if (sender == null || receiver == null)
+                return NotFound("Account not found.");
+
+            if (sender.Balance < transferDto.Amount)
+                return BadRequest("Insufficient funds.");
+
+            sender.Balance -= transferDto.Amount;
+            receiver.Balance += transferDto.Amount;
+
+            var senderTransaction = new Transaction
+            {
+                Type = "TransferOut",
+                Amount = transferDto.Amount,
+                Description = $"Processing transfer to ID {receiver.Id}...",
+                AccountId = sender.Id
+            };
+
+            var receiverTransaction = new Transaction
+            {
+                Type = "TransferIn",
+                Amount = transferDto.Amount,
+                Description = $"Processing transfer from ID {sender.Id}...",
+                AccountId = receiver.Id
+            };
+
+            _context.Transactions.Add(senderTransaction);
+            _context.Transactions.Add(receiverTransaction);
+            await _context.SaveChangesAsync();
+
+            var senderMsg = new
+            {
+                TransactionId = senderTransaction.Id,
+                AccountId = sender.Id,
+                Type = "TransferOut",
+                Amount = transferDto.Amount,
+                Message = $"Sent ${transferDto.Amount} to {receiver.Name}."
+            };
+
+            var receiverMsg = new
+            {
+                TransactionId = receiverTransaction.Id,
+                AccountId = receiver.Id,
+                Type = "TransferIn",
+                Amount = transferDto.Amount,
+                Message = $"Received ${transferDto.Amount} from {sender.Name}."
+            };
+
+            try
+            {
+                await _rabbitMqService.PublishMessageAsync(senderMsg, "transaction_notifications");
+                await _rabbitMqService.PublishMessageAsync(receiverMsg, "transaction_notifications");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
+
+            return Ok("Transfer completed successfully.");
+        }
+
+        [HttpPost("{id}/deposit")]
+        public async Task<IActionResult> Deposit(int id, TransactionDTO transactionDto)
+        {
+            if (transactionDto.Amount <= 0)
+                return BadRequest("Amount must be greater than zero.");
+
+            if (!HasPermission(id)) return StatusCode(403, "Permission denied.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound("Account not found.");
+
+            account.Balance += transactionDto.Amount;
+
+            var transactionHistory = new Transaction
+            {
+                Type = "Deposit",
+                Amount = transactionDto.Amount,
+                Description = "Processing deposit...",
+                AccountId = account.Id
+            };
+
+            _context.Transactions.Add(transactionHistory);
+            await _context.SaveChangesAsync();
+
+            var depositMsg = new
+            {
+                TransactionId = transactionHistory.Id,
+                AccountId = account.Id,
+                Type = "Deposit",
+                Amount = transactionDto.Amount,
+                Message = $"Successfully deposited ${transactionDto.Amount}."
+            };
+
+            try
+            {
+                await _rabbitMqService.PublishMessageAsync(depositMsg, "transaction_notifications");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
+
+            return Ok($"Deposit successful. New balance: {account.Balance}");
+        }
+
+        [HttpPost("{id}/withdraw")]
+        public async Task<IActionResult> Withdraw(int id, TransactionDTO transactionDto)
+        {
+            if (transactionDto.Amount <= 0)
+                return BadRequest("Amount must be greater than zero.");
+
+            if (!HasPermission(id)) return StatusCode(403, "Permission denied.");
+
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null) return NotFound("Account not found.");
+
+            if (account.Balance < transactionDto.Amount)
+                return BadRequest("Insufficient funds.");
+
+            account.Balance -= transactionDto.Amount;
+
+            var transactionHistory = new Transaction
+            {
+                Type = "Withdrawal",
+                Amount = transactionDto.Amount,
+                Description = "Processing withdrawal...",
+                AccountId = account.Id
+            };
+
+            _context.Transactions.Add(transactionHistory);
+            await _context.SaveChangesAsync();
+
+            var withdrawMsg = new
+            {
+                TransactionId = transactionHistory.Id,
+                AccountId = account.Id,
+                Type = "Withdrawal",
+                Amount = transactionDto.Amount,
+                Message = $"Successfully withdrew ${transactionDto.Amount}."
+            };
+
+            try
+            {
+                await _rabbitMqService.PublishMessageAsync(withdrawMsg, "transaction_notifications");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
+
+            return Ok($"Withdrawal successful. New balance: {account.Balance}");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/promote")]
+        public async Task<IActionResult> PromoteToAdmin(int id)
+        {
+            var account = await _context.Accounts.FindAsync(id);
+
+            if (account == null)
+                return NotFound("Account not found.");
+
+            if (account.Role == "Admin")
+                return BadRequest("Account is already an Admin.");
+
+            account.Role = "Admin";
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Account promoted to Admin." });
+        }
+
+        [AllowAnonymous]
+        [HttpPost("transactions/{id}/humanize")]
+        public async Task<IActionResult> HumanizeTransaction(int id, [FromBody] string aiMessage)
+        {
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null) return NotFound();
+
+            transaction.Description = aiMessage;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpGet("{id}/transactions")]
+        public async Task<ActionResult<IEnumerable<object>>> GetTransactionHistory(int id)
+        {
+            if (!HasPermission(id)) return StatusCode(403, "Access denied.");
+
+            var transactions = await _context.Transactions
+                .Where(t => t.AccountId == id)
+                .OrderByDescending(t => t.Id)
+                .Take(10)
+                .Select(t => new 
+                {
+                    id = t.Id,
+                    type = t.Type,
+                    amount = t.Amount,
+                    description = t.Description
+                })
+                .ToListAsync();
+
+            return Ok(transactions);
+        }
+
+        private bool HasPermission(int targetAccountId)
+        {
+            var loggedInUserId = User.FindFirst("AccountId")?.Value;
+            if (User.IsInRole("Admin")) return true;
+            return loggedInUserId == targetAccountId.ToString();
         }
     }
 }

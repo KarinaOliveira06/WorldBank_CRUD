@@ -2,13 +2,16 @@ import pika
 import json
 import sys
 import os
+import time
+import requests
 import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
-model = genai.GenerativeModel('gemini-1.5-flash')
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 def generate_concierge_message(transaction_type, original_message):
     prompt = f"""
@@ -36,35 +39,55 @@ def generate_concierge_message(transaction_type, original_message):
         return f"Error contacting AI: {e}"
 
 def main():
+    print("⏳ Starting AI Concierge Worker...")
+    
+    connection = None
+    while not connection:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+            print("✅ Successfully connected to RabbitMQ!")
+        except pika.exceptions.AMQPConnectionError:
+            print("⏳ RabbitMQ is still booting up... waiting 5 seconds before retrying.")
+            time.sleep(5)
+    # ----------------------------------------------------
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
-
     queue_name = 'transaction_notifications'
     channel.queue_declare(queue=queue_name, durable=True)
 
     def callback(ch, method, properties, body):
-        system_message = json.loads(body)
-        
-        transaction_type = system_message.get('Type')
-        original_msg = system_message.get('Message')
-        
+        data = json.loads(body)
+        t_id = data.get('TransactionId')
+        t_type = data.get('Type')
+        orig_msg = data.get('Message')
+
         print("\n" + "="*60)
-        print("📥 1. NEW TRANSACTION RECEIVED FROM C#:")
-        print(f"   [{transaction_type}] {original_msg}")
+        print(f"📥 1. NEW TRANSACTION RECEIVED (ID: {t_id}):")
+        print(f"   [{t_type}] {orig_msg}")
         
-        print("\n🧠 2. PROCESSING WITH ARTIFICIAL INTELLIGENCE...")
+        print("🧠 2. PROCESSING WITH ARTIFICIAL INTELLIGENCE...")
+        ai_message = generate_concierge_message(t_type, orig_msg)
         
-        ai_message = generate_concierge_message(transaction_type, original_msg)
-        
-        print("\n📱 3. MESSAGE READY FOR SENDING (SMS/WHATSAPP):")
+        print("📱 3. MESSAGE READY FOR SENDING:")
         print(f"   💬 {ai_message}")
         print("="*60 + "\n")
 
+        try:
+            response = requests.post(
+                f"http://api:8080/api/account/transactions/{t_id}/humanize", 
+                json=ai_message,
+                headers={"Content-Type": "application/json"}
+            )
+            if response.status_code == 200:
+                print(f"✅ Extrato atualizado no Dashboard (ID: {t_id})")
+            else:
+                print(f"⚠️ Erro ao enviar para a API: {response.status_code}")
+        except Exception as e:
+            print(f"❌ Falha de sincronização com a API: {e}")
+
     channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
 
-    print(f" [*] AI Concierge started. Listening to the '{queue_name}' queue...")
-    print(" [*] Press CTRL+C to exit.")
+    print(f" [*] AI Concierge is listening to the '{queue_name}' queue...")
     channel.start_consuming()
 
 if __name__ == '__main__':
