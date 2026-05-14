@@ -21,10 +21,10 @@ Enabling event-driven communication between different services.
 * **Broker:** Integration with **RabbitMQ**.
 * **Logic:** The C# API will publish events to queues whenever critical actions occur (e.g., "High-value withdrawal detected").
 
-### **Phase 4: Automation Workers (Python, AI & Twilio)**
+### **Phase 4: Automation Workers (Python, AI & Gemini)**
 Independent Python scripts acting as "Smart Workers" that listen to the message queue.
 * **Asynchronous Tasks:** Python consumes RabbitMQ messages to trigger background jobs.
-* **Services:** Automated SMS notifications via **Twilio** and customer profile analysis using **AI APIs**.
+* **Services:** Automated notifications via **Gemini** using **AI APIs**.
 
 ### **Phase 5: The Interface (Frontend)**
 A clean, responsive UI to interact with the API.
